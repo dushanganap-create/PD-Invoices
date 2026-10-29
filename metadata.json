@@ -1,0 +1,8 @@
+{
+  "name": "InvoiceCraft Studio",
+  "description": "Professional invoice generator featuring 33 bespoke designer templates, instant PDF download, print mode, dynamic calculations, digital signature, user history, CRM address book, and revenue analytics. Made By Pasindu Dushangana.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
