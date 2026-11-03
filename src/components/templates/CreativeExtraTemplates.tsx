@@ -961,3 +961,923 @@ export const ZenithGlassmorphism: React.FC<TemplateProps> = ({ invoice, calc }) 
     </div>
   );
 };
+
+// 34. Quantum Fintech
+export const QuantumFintech: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-slate-950 text-slate-100 font-jakarta text-xs sm:text-sm border-t-4 border-indigo-600">
+    <div className="flex justify-between border-b border-slate-800 pb-6">
+      <div>
+        <div className="text-xl font-bold text-indigo-400">{invoice.company.name}</div>
+        <div className="text-xs text-slate-400 mt-1">{invoice.company.address} · {invoice.company.email}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs uppercase text-indigo-400 font-bold">Quantum Invoice</div>
+        <div className="text-lg font-mono font-bold text-white">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-slate-400 mt-1">Due: {invoice.dueDate}</div>
+        <div className="mt-1"><StatusStamp status={invoice.status} /></div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-slate-800">
+      <div className="text-xs font-bold text-slate-400 uppercase">Client Billing</div>
+      <div className="text-sm font-bold text-white mt-1">{invoice.client.name}</div>
+      <div className="text-xs text-slate-400">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left">
+        <thead>
+          <tr className="border-b border-slate-800 text-xs font-bold text-indigo-400 uppercase">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Price</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-800 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-slate-200">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-indigo-300">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-slate-800 pt-6 flex justify-between">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-400" taxClass="flex justify-between text-slate-300" />
+        <div className="flex justify-between text-base font-bold text-indigo-400 pt-2 border-t border-slate-800">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 35. Velvet Obsidian
+export const VelvetObsidian: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-neutral-950 text-amber-100 font-cinzel text-xs sm:text-sm border-2 border-amber-500/50">
+    <div className="text-center pb-8 border-b border-amber-500/30">
+      <div className="text-[10px] tracking-widest text-amber-400 uppercase font-bold">HAUTE LUXURY STATEMENT</div>
+      <h1 className="text-2xl font-bold text-amber-200 mt-1">{invoice.company.name}</h1>
+      <div className="text-xs text-amber-300/60 font-sans mt-1">{invoice.company.address}</div>
+    </div>
+    <div className="flex justify-between py-6 border-b border-amber-500/20 font-sans text-xs">
+      <div>
+        <div className="text-amber-400 font-bold">Client: {invoice.client.name}</div>
+        <div className="text-amber-200/70">{invoice.client.address}</div>
+      </div>
+      <div className="text-right font-mono">
+        <div className="text-amber-300 font-bold">{invoice.invoiceNumber}</div>
+        <div className="text-amber-200/70">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left font-sans text-xs">
+        <thead>
+          <tr className="border-b border-amber-500/40 text-amber-300 font-cinzel font-bold">
+            <th className="py-2 pr-4">Item</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Amount</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-neutral-900">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 text-amber-100 font-medium">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono text-amber-300/80">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono text-amber-300/80">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-amber-300">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-amber-500/30 pt-6 flex justify-between font-sans text-xs">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1">
+        <div className="flex justify-between text-amber-200/80"><span>Subtotal:</span><span>{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-amber-400" taxClass="flex justify-between text-amber-200/80" />
+        <div className="flex justify-between text-base font-cinzel font-bold text-amber-300 pt-2 border-t border-amber-500/40">
+          <span>Total:</span><span>{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 36. Solaris Neon
+export const SolarisGlow: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-neutral-950 text-amber-50 font-syne text-xs sm:text-sm border-l-4 border-amber-500">
+    <div className="flex justify-between border-b border-amber-500/20 pb-6">
+      <div>
+        <div className="text-xl font-bold text-amber-400">{invoice.company.name}</div>
+        <div className="text-xs text-amber-200/60 font-sans mt-1">{invoice.company.email}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs font-bold text-amber-400 uppercase">Solar Invoice</div>
+        <div className="text-lg font-mono font-bold text-white">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-amber-200/60 font-sans mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-amber-500/20 font-sans text-xs">
+      <div className="text-amber-400 font-bold uppercase text-[10px]">Billed To</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-amber-200/70">{invoice.client.address}</div>
+    </div>
+    <div className="py-6 font-sans">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-amber-500/30 text-amber-400 font-bold uppercase">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Price</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-neutral-900 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-semibold text-amber-100">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-amber-400">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-amber-500/20 pt-6 flex justify-between font-sans">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-amber-400" taxClass="flex justify-between text-amber-200/80" />
+        <div className="flex justify-between text-base font-bold text-amber-400 pt-2 border-t border-amber-500/30">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 37. Holographic Cyber
+export const HolographicMatrix: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-cyan-950 text-cyan-200 font-jetbrains text-xs sm:text-sm border border-cyan-500/50">
+    <div className="flex justify-between border-b border-cyan-500/30 pb-6">
+      <div>
+        <div className="text-xl font-bold text-cyan-400">SYS // {invoice.company.name}</div>
+        <div className="text-xs text-cyan-300/70 mt-1">{invoice.company.email}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-cyan-400 uppercase font-mono">Holo Invoice</div>
+        <div className="text-lg font-bold text-cyan-100 font-mono">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-cyan-300/70 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-cyan-500/20">
+      <div className="text-xs text-cyan-400 uppercase font-mono">Client Endpoint</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-cyan-300/70">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-cyan-500/30 text-cyan-400 font-bold font-mono uppercase">
+            <th className="py-2 pr-4">Directive</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-cyan-950 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 text-cyan-100 font-mono">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-cyan-300">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-cyan-500/30 pt-6 flex justify-between font-mono">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-400" taxClass="flex justify-between text-cyan-300" />
+        <div className="flex justify-between text-base font-bold text-cyan-400 pt-2 border-t border-cyan-500/40">
+          <span>Total:</span><span>{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 38. Nordic Fjord
+export const NordicFjord: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-sky-50 text-slate-800 font-outfit text-xs sm:text-sm border border-sky-200">
+    <div className="flex justify-between border-b border-sky-200 pb-6">
+      <div>
+        <div className="text-xl font-bold text-sky-900">{invoice.company.name}</div>
+        <div className="text-xs text-sky-700 mt-1">{invoice.company.address} · {invoice.company.email}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-sky-700 font-semibold uppercase">Invoice</div>
+        <div className="text-lg font-mono font-bold text-sky-950">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-sky-700 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-sky-200">
+      <div className="text-xs text-sky-700 uppercase font-semibold">Billed To</div>
+      <div className="text-sm font-bold text-sky-950 mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-sky-700">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-sky-200 text-sky-900 font-bold uppercase">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-sky-100 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-slate-900">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-sky-900">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-sky-200 pt-6 flex justify-between">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-600 font-bold" taxClass="flex justify-between text-sky-700" />
+        <div className="flex justify-between text-base font-bold text-sky-900 pt-2 border-t border-sky-200">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 39. Alpine Minimal
+export const AlpineMinimal: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-white text-slate-900 font-jakarta text-xs sm:text-sm border border-slate-200">
+    <div className="flex justify-between border-b border-slate-200 pb-6">
+      <div>
+        <div className="text-xl font-bold text-slate-900">{invoice.company.name}</div>
+        <div className="text-xs text-slate-500 mt-1">{invoice.company.address}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-slate-400 uppercase font-semibold">Invoice No</div>
+        <div className="text-lg font-mono font-bold text-slate-900">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-slate-500 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-slate-100">
+      <div className="text-xs text-slate-400 uppercase font-semibold">Client</div>
+      <div className="text-sm font-bold text-slate-900 mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-slate-500">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-slate-200 text-slate-400 font-semibold uppercase">
+            <th className="py-2 pr-4">Item</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-slate-800">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-slate-900">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-slate-200 pt-6 flex justify-between">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-600" taxClass="flex justify-between text-slate-500" />
+        <div className="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-200">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 40. Velvet Rosemary
+export const VelvetRosemary: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-[#f4f7f4] text-emerald-950 font-garamond text-xs sm:text-sm border border-emerald-200">
+    <div className="flex justify-between border-b border-emerald-200 pb-6 font-sans">
+      <div>
+        <div className="text-xl font-bold text-emerald-900">{invoice.company.name}</div>
+        <div className="text-xs text-emerald-700 mt-1">{invoice.company.address}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-emerald-700 uppercase font-bold">Botanical Invoice</div>
+        <div className="text-lg font-mono font-bold text-emerald-950">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-emerald-700 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-emerald-200 font-sans">
+      <div className="text-xs text-emerald-700 uppercase font-bold">Patron</div>
+      <div className="text-sm font-bold text-emerald-950 mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-emerald-700">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs font-sans">
+        <thead>
+          <tr className="border-b border-emerald-200 text-emerald-900 font-bold uppercase">
+            <th className="py-2 pr-4">Craft Service</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-emerald-100 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-emerald-950">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-emerald-900">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-emerald-200 pt-6 flex justify-between font-sans">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-700" taxClass="flex justify-between text-emerald-700" />
+        <div className="flex justify-between text-base font-bold text-emerald-950 pt-2 border-t border-emerald-200">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 41. Obsidian Sapphire
+export const ObsidianSapphire: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-neutral-950 text-blue-100 font-jakarta text-xs sm:text-sm border-t-4 border-blue-600">
+    <div className="flex justify-between border-b border-neutral-800 pb-6">
+      <div>
+        <div className="text-xl font-bold text-blue-400">{invoice.company.name}</div>
+        <div className="text-xs text-neutral-400 mt-1">{invoice.company.address}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-blue-400 font-bold uppercase">Executive Ledger</div>
+        <div className="text-lg font-mono font-bold text-white">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-neutral-400 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-neutral-800">
+      <div className="text-xs text-neutral-400 uppercase font-semibold">Client</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-neutral-400">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-neutral-800 text-blue-400 font-bold uppercase">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-neutral-900 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-white">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-blue-400">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-neutral-800 pt-6 flex justify-between">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between text-neutral-300"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-400" taxClass="flex justify-between text-neutral-300" />
+        <div className="flex justify-between text-base font-bold text-blue-400 pt-2 border-t border-neutral-800">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 42. Prism Gradient
+export const PrismGradient: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-neutral-950 text-purple-100 font-space text-xs sm:text-sm border border-purple-500/40">
+    <div className="bg-gradient-to-r from-purple-900/40 via-pink-900/40 to-indigo-900/40 p-6 rounded-2xl border border-purple-500/30 flex justify-between">
+      <div>
+        <div className="text-xl font-bold text-purple-300">{invoice.company.name}</div>
+        <div className="text-xs text-purple-200/60 mt-1">{invoice.company.email}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-purple-300 uppercase font-bold">Prism Invoice</div>
+        <div className="text-lg font-mono font-bold text-white">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-purple-200/60 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-purple-900/40">
+      <div className="text-xs text-purple-400 uppercase font-semibold">Client</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-purple-200/60">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-purple-900/40 text-purple-300 font-bold uppercase">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-purple-950 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-white">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-purple-300">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-purple-900/40 pt-6 flex justify-between">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between text-purple-200"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-400" taxClass="flex justify-between text-purple-200" />
+        <div className="flex justify-between text-base font-bold text-purple-300 pt-2 border-t border-purple-900/40">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 43. Aero Glass
+export const AeroGlass: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-slate-900 text-indigo-100 font-outfit text-xs sm:text-sm border border-indigo-500/30">
+    <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 flex justify-between">
+      <div>
+        <div className="text-xl font-bold text-white">{invoice.company.name}</div>
+        <div className="text-xs text-indigo-200/70 mt-1">{invoice.company.address}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-indigo-300 uppercase font-bold">Aero Invoice</div>
+        <div className="text-lg font-mono font-bold text-white">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-indigo-200/70 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-indigo-900/30">
+      <div className="text-xs text-indigo-300 uppercase font-semibold">Client</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-indigo-200/70">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-indigo-900/30 text-indigo-300 font-bold uppercase">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-indigo-950 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-white">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-indigo-300">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-indigo-900/30 pt-6 flex justify-between">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between text-indigo-200"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-400" taxClass="flex justify-between text-indigo-200" />
+        <div className="flex justify-between text-base font-bold text-white pt-2 border-t border-indigo-900/30">
+          <span>Total:</span><span className="font-mono text-indigo-300">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 44. Chrono Chronicle
+export const ChronoChronicle: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-[#fdfbf7] text-stone-900 font-playfair text-xs sm:text-sm border-2 border-stone-300">
+    <div className="text-center pb-6 border-b-2 border-stone-800">
+      <div className="text-[10px] uppercase font-mono tracking-widest text-stone-600">THE CHRONICLE GAZETTE</div>
+      <h1 className="text-2xl font-black uppercase text-stone-900 mt-1">{invoice.company.name}</h1>
+      <div className="text-xs text-stone-600 font-sans mt-1">{invoice.company.address}</div>
+    </div>
+    <div className="flex justify-between py-6 border-b border-stone-300 font-sans text-xs">
+      <div>
+        <div className="font-bold uppercase text-stone-700">Client Recipient</div>
+        <div className="text-sm font-bold text-stone-900 mt-0.5">{invoice.client.name}</div>
+        <div className="text-stone-600">{invoice.client.address}</div>
+      </div>
+      <div className="text-right font-mono">
+        <div className="font-bold text-stone-900">{invoice.invoiceNumber}</div>
+        <div className="text-stone-600">Issued: {invoice.issueDate}</div>
+        <div className="text-stone-600">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 font-sans">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b-2 border-stone-800 font-bold uppercase text-stone-800">
+            <th className="py-2 pr-4">Gazette Schedule</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Amount</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-stone-200 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-stone-900">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-stone-900">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t-2 border-stone-800 pt-6 flex justify-between font-sans">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-700 font-bold" taxClass="flex justify-between text-stone-600" />
+        <div className="flex justify-between text-base font-bold text-stone-900 pt-2 border-t-2 border-stone-800">
+          <span>Total Due:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 45. Titanium Executive
+export const TitaniumExec: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-slate-900 text-slate-100 font-jakarta text-xs sm:text-sm border border-slate-700">
+    <div className="flex justify-between border-b border-slate-700 pb-6">
+      <div>
+        <div className="text-xl font-bold text-slate-100">{invoice.company.name}</div>
+        <div className="text-xs text-slate-400 mt-1">{invoice.company.address}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-slate-400 uppercase font-semibold">Titanium Invoice</div>
+        <div className="text-lg font-mono font-bold text-white">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-slate-400 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-slate-800">
+      <div className="text-xs text-slate-400 uppercase font-semibold">Client</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-slate-400">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-slate-700 text-slate-400 font-semibold uppercase">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-800 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-slate-200">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-slate-100">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-slate-700 pt-6 flex justify-between">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between text-slate-300"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-400" taxClass="flex justify-between text-slate-300" />
+        <div className="flex justify-between text-base font-bold text-white pt-2 border-t border-slate-700">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 46. Celestial Gold
+export const CelestialGold: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-neutral-950 text-amber-100 font-cinzel text-xs sm:text-sm border border-amber-500/30">
+    <div className="flex justify-between border-b border-amber-500/25 pb-6">
+      <div>
+        <div className="text-xl font-bold text-amber-300">{invoice.company.name}</div>
+        <div className="text-xs text-amber-200/60 font-sans mt-1">{invoice.company.address}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-amber-400 uppercase font-bold">Celestial Invoice</div>
+        <div className="text-lg font-mono font-bold text-amber-200">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-amber-200/60 font-sans mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-amber-500/20 font-sans">
+      <div className="text-xs text-amber-400 uppercase font-bold">Client</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-amber-200/70">{invoice.client.address}</div>
+    </div>
+    <div className="py-6 font-sans">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-amber-500/30 text-amber-300 font-cinzel font-bold">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-neutral-900 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-amber-100">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono text-amber-300">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono text-amber-300">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-amber-300">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-amber-500/25 pt-6 flex justify-between font-sans">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between text-amber-200/80"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-amber-400 font-bold" taxClass="flex justify-between text-amber-200/80" />
+        <div className="flex justify-between text-base font-cinzel font-bold text-amber-300 pt-2 border-t border-amber-500/30">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 47. Tokyo Vermilion
+export const VermilionTokyo: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-neutral-900 text-stone-100 font-garamond text-xs sm:text-sm border-l-4 border-red-600">
+    <div className="flex justify-between border-b border-stone-800 pb-6 font-sans">
+      <div>
+        <div className="text-xl font-bold text-red-500">{invoice.company.name}</div>
+        <div className="text-xs text-stone-400 mt-1">{invoice.company.address}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-red-500 uppercase font-bold">Tokyo Invoice</div>
+        <div className="text-lg font-mono font-bold text-white">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-stone-400 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-stone-800 font-sans">
+      <div className="text-xs text-red-500 uppercase font-bold">Client</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-stone-400">{invoice.client.address}</div>
+    </div>
+    <div className="py-6 font-sans">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-stone-800 text-red-500 font-bold uppercase">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-stone-800/60 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-stone-200">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-red-400">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-stone-800 pt-6 flex justify-between font-sans">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between text-stone-300"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-400" taxClass="flex justify-between text-stone-300" />
+        <div className="flex justify-between text-base font-bold text-red-500 pt-2 border-t border-stone-800">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 48. Horizon Sunset
+export const HorizonSunset: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-neutral-950 text-rose-100 font-syne text-xs sm:text-sm border border-rose-500/30">
+    <div className="bg-gradient-to-r from-rose-950/60 via-pink-950/60 to-purple-950/60 p-6 rounded-2xl border border-rose-500/30 flex justify-between">
+      <div>
+        <div className="text-xl font-bold text-rose-300">{invoice.company.name}</div>
+        <div className="text-xs text-rose-200/60 mt-1">{invoice.company.email}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-rose-300 uppercase font-bold">Sunset Invoice</div>
+        <div className="text-lg font-mono font-bold text-white">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-rose-200/60 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-rose-950">
+      <div className="text-xs text-rose-400 uppercase font-semibold">Client</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-rose-200/60">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-rose-950 text-rose-300 font-bold uppercase">
+            <th className="py-2 pr-4">Description</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-neutral-900 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-white">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-rose-300">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-rose-950 pt-6 flex justify-between">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between text-rose-200"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-400" taxClass="flex justify-between text-rose-200" />
+        <div className="flex justify-between text-base font-bold text-rose-300 pt-2 border-t border-rose-950">
+          <span>Total:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 49. Quantum AI
+export const QuantumAi: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-neutral-950 text-sky-100 font-jetbrains text-xs sm:text-sm border border-sky-500/40">
+    <div className="flex justify-between border-b border-sky-900 pb-6">
+      <div>
+        <div className="text-xl font-bold text-sky-400">AI NEXUS // {invoice.company.name}</div>
+        <div className="text-xs text-sky-300/60 mt-1">{invoice.company.email}</div>
+      </div>
+      <div className="text-right">
+        <div className="text-xs text-sky-400 uppercase font-mono">Neural Invoice</div>
+        <div className="text-lg font-mono font-bold text-white">{invoice.invoiceNumber}</div>
+        <div className="text-xs text-sky-300/60 mt-1">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 border-b border-sky-900">
+      <div className="text-xs text-sky-400 uppercase font-mono">Client Node</div>
+      <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+      <div className="text-xs text-sky-300/60">{invoice.client.address}</div>
+    </div>
+    <div className="py-6">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-sky-900 text-sky-400 font-bold font-mono uppercase">
+            <th className="py-2 pr-4">Compute Task</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-neutral-900 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-mono text-sky-200">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-sky-400">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t border-sky-900 pt-6 flex justify-between font-mono">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between text-sky-300"><span>Subtotal:</span><span>{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-emerald-400" taxClass="flex justify-between text-sky-300" />
+        <div className="flex justify-between text-base font-bold text-sky-400 pt-2 border-t border-sky-900">
+          <span>Total:</span><span>{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// 50. Infinite Luxe
+export const InfiniteLuxe: React.FC<TemplateProps> = ({ invoice, calc }) => (
+  <div className="p-8 sm:p-12 bg-neutral-950 text-amber-100 font-cinzel text-xs sm:text-sm border-4 border-amber-500/70">
+    <div className="text-center pb-6 border-b-2 border-amber-500/50">
+      <div className="text-[10px] uppercase font-mono tracking-[0.3em] text-amber-400">SUPREME PRESTIGE</div>
+      <h1 className="text-3xl font-black uppercase text-amber-200 mt-1">{invoice.company.name}</h1>
+      <div className="text-xs text-amber-300/70 font-sans mt-1">{invoice.company.address}</div>
+    </div>
+    <div className="flex justify-between py-6 border-b border-amber-500/30 font-sans text-xs">
+      <div>
+        <div className="text-amber-400 font-bold uppercase text-[10px]">Client Patron</div>
+        <div className="text-sm font-bold text-white mt-0.5">{invoice.client.name}</div>
+        <div className="text-amber-200/70">{invoice.client.address}</div>
+      </div>
+      <div className="text-right font-mono">
+        <div className="text-lg font-bold text-amber-300">{invoice.invoiceNumber}</div>
+        <div className="text-amber-200/70">Due: {invoice.dueDate}</div>
+      </div>
+    </div>
+    <div className="py-6 font-sans">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b-2 border-amber-500/50 text-amber-300 font-cinzel font-bold uppercase">
+            <th className="py-2 pr-4">Prestige Portfolio</th>
+            <th className="py-2 px-3 text-right">Qty</th>
+            <th className="py-2 px-3 text-right">Rate</th>
+            <th className="py-2 pl-4 text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-neutral-900 text-xs">
+          {invoice.items.map((item, idx) => (
+            <tr key={idx}>
+              <td className="py-3 pr-4 font-medium text-amber-100">{item.description}</td>
+              <td className="py-3 px-3 text-right font-mono text-amber-300">{item.quantity}</td>
+              <td className="py-3 px-3 text-right font-mono text-amber-300">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+              <td className="py-3 pl-4 text-right font-mono font-bold text-amber-300">{formatCurrency(item.quantity * item.unitPrice, invoice.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="border-t-2 border-amber-500/50 pt-6 flex justify-between font-sans">
+      <PaymentMethodInfo invoice={invoice} />
+      <div className="w-64 space-y-1 text-xs">
+        <div className="flex justify-between text-amber-200/80"><span>Subtotal:</span><span className="font-mono">{formatCurrency(calc.subtotal, invoice.currency)}</span></div>
+        <InvoiceSummaryRows invoice={invoice} calc={calc} discountClass="flex justify-between text-amber-400 font-bold" taxClass="flex justify-between text-amber-200/80" />
+        <div className="flex justify-between text-base font-cinzel font-bold text-amber-300 pt-2 border-t border-amber-500/40">
+          <span>Total Due:</span><span className="font-mono">{formatCurrency(calc.balanceDue, invoice.currency)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+

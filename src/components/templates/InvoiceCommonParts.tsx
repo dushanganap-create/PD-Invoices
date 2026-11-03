@@ -289,7 +289,11 @@ export const TemplateLogoBadge: React.FC<{
 export const InvoiceWatermark: React.FC<{
   className?: string;
   subtle?: boolean;
-}> = ({ className = '', subtle = false }) => {
+  isPro?: boolean;
+}> = ({ className = '', subtle = false, isPro = false }) => {
+  // Pro users and Super Admin never receive the watermark on their generated invoices
+  if (isPro) return null;
+
   return (
     <div
       className={`w-full flex items-center justify-center gap-2 pt-4 pb-2 border-t border-dashed border-neutral-300/60 select-none ${className}`}
@@ -300,7 +304,7 @@ export const InvoiceWatermark: React.FC<{
           subtle ? 'text-neutral-400' : 'text-neutral-500'
         }`}
       >
-        Made By Pasindu Dushangana
+        Made with PD Invoice
       </span>
       <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-60" />
     </div>

@@ -321,7 +321,7 @@ export const ClientBookModal: React.FC<ClientBookModalProps> = ({
             Address Book Directory
           </span>
           <span className="font-semibold text-neutral-300">
-            Made By Pasindu Dushangana
+            PD Invoice Studio
           </span>
         </div>
       </div>

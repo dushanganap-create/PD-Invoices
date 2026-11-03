@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { EditorPanel } from './components/EditorPanel';
@@ -13,25 +8,27 @@ import { AuthModal } from './components/AuthModal';
 import { UserHistoryModal } from './components/UserHistoryModal';
 import { ClientBookModal } from './components/ClientBookModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
-import { Invoice, ClientInfo } from './types/invoice';
-import { UserProfile } from './types/auth';
+import { AdminDashboardModal } from './components/AdminDashboardModal';
+import { ProLimitModal } from './components/ProLimitModal';
+import { ProComparisonModal } from './components/ProComparisonModal';
+import { ProProfileModal } from './components/ProProfileModal';
+import { LandingPage } from './components/LandingPage';
+import { CustomCursor } from './components/CustomCursor';
+import { Invoice, ClientInfo, CompanyInfo, PaymentDetails, SignatureData, CurrencyCode } from './types/invoice';
 import { DEFAULT_INVOICE, INVOICE_PRESETS } from './data/presets';
-import {
-  getCurrentUser,
-  setCurrentUser,
-  getUserInvoices,
-  saveUserInvoice,
-  deleteUserInvoice,
-  recordLoginEvent,
-} from './utils/authStorage';
-import { Sparkles, ShieldCheck } from 'lucide-react';
+import { TEMPLATES } from './data/templateList';
+import { ShieldCheck, Crown, SlidersHorizontal, Eye, Sparkles } from 'lucide-react';
+import { useAuth } from './AuthProvider';
+import { signOut } from 'firebase/auth';
+import { auth } from './firebase';
+import { exportToPdf, printInvoice } from './utils/export';
 
 const STORAGE_KEY_CURRENT = 'invoicecraft_current_invoice';
+const ADMIN_EMAIL = 'pdushangana@gmail.com';
 
 export default function App() {
-  // Current user state
-  const [currentUser, setLocalUser] = useState<UserProfile | null>(() => getCurrentUser());
-
+  const { user, loading, isPro: isAuthPro, isAdmin: isAuthAdmin } = useAuth();
+  
   // Current active invoice
   const [currentInvoice, setCurrentInvoice] = useState<Invoice>(() => {
     try {
@@ -43,27 +40,26 @@ export default function App() {
     return DEFAULT_INVOICE;
   });
 
-  // Saved user invoices history
-  const [savedInvoices, setSavedInvoices] = useState<Invoice[]>(() => {
-    const user = getCurrentUser();
-    if (user) {
-      return getUserInvoices(user.id);
-    }
-    return [DEFAULT_INVOICE];
-  });
+  const [savedInvoices, setSavedInvoices] = useState<Invoice[]>([DEFAULT_INVOICE]);
 
   // Modals state
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isClientBookOpen, setIsClientBookOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isProLimitModalOpen, setIsProLimitModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isProComparisonOpen, setIsProComparisonOpen] = useState(false);
+  const [isProProfileOpen, setIsProProfileOpen] = useState(false);
+  const [proLimitReason, setProLimitReason] = useState<'daily_limit' | 'pro_template' | 'pro_feature'>('daily_limit');
+  const [proFeatureName, setProFeatureName] = useState<string>('Exclusive Feature');
 
-  // Layout view
   const [activeView, setActiveView] = useState<'split' | 'editor' | 'preview'>('split');
+  const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
+  const [currentRoute, setCurrentRoute] = useState<'home' | 'app'>('home');
 
-  // Persist current active invoice in browser
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY_CURRENT, JSON.stringify(currentInvoice));
@@ -72,33 +68,8 @@ export default function App() {
     }
   }, [currentInvoice]);
 
-  // When user switches or logs in/out, load their specific history
-  const handleUserChange = (newUser: UserProfile | null) => {
-    setLocalUser(newUser);
-    if (newUser) {
-      const userInvs = getUserInvoices(newUser.id);
-      setSavedInvoices(userInvs);
-      if (userInvs.length > 0) {
-        setCurrentInvoice(userInvs[0]);
-      }
-    }
-  };
-
-  // Handlers
   const handleUpdateInvoice = (updated: Invoice) => {
     setCurrentInvoice(updated);
-    if (currentUser) {
-      const updatedList = saveUserInvoice(currentUser.id, updated);
-      setSavedInvoices(updatedList);
-    } else {
-      setSavedInvoices((prev) => {
-        const exists = prev.some((inv) => inv.id === updated.id);
-        if (exists) {
-          return prev.map((inv) => (inv.id === updated.id ? updated : inv));
-        }
-        return [updated, ...prev];
-      });
-    }
   };
 
   const handleSelectPreset = (presetId: string) => {
@@ -153,31 +124,6 @@ export default function App() {
     handleUpdateInvoice(duplicated);
   };
 
-  const handleDeleteInvoice = (id: string) => {
-    if (currentUser) {
-      const remaining = deleteUserInvoice(currentUser.id, id);
-      setSavedInvoices(remaining);
-      if (currentInvoice.id === id && remaining.length > 0) {
-        setCurrentInvoice(remaining[0]);
-      }
-    } else {
-      setSavedInvoices((prev) => {
-        const remaining = prev.filter((inv) => inv.id !== id);
-        if (currentInvoice.id === id && remaining.length > 0) {
-          setCurrentInvoice(remaining[0]);
-        }
-        return remaining;
-      });
-    }
-  };
-
-  const handleLoadSavedInvoice = (id: string) => {
-    const target = savedInvoices.find((inv) => inv.id === id);
-    if (target) {
-      setCurrentInvoice(target);
-    }
-  };
-
   const handleApplyClient = (client: ClientInfo) => {
     handleUpdateInvoice({
       ...currentInvoice,
@@ -189,156 +135,263 @@ export default function App() {
     });
   };
 
+  const handleApplyProProfileToInvoice = (updates: {
+    company?: Partial<CompanyInfo>;
+    payment?: Partial<PaymentDetails>;
+    signature?: Partial<SignatureData>;
+    currency?: CurrencyCode;
+    notes?: string;
+    terms?: string;
+  }) => {
+    setCurrentInvoice((prev) => ({
+      ...prev,
+      company: updates.company ? { ...prev.company, ...updates.company } : prev.company,
+      payment: updates.payment ? { ...prev.payment, ...updates.payment } : prev.payment,
+      signature: updates.signature ? { ...prev.signature, ...updates.signature } : prev.signature,
+      currency: updates.currency || prev.currency,
+      notes: updates.notes !== undefined ? updates.notes : prev.notes,
+      paymentTerms: updates.terms !== undefined ? updates.terms : prev.paymentTerms,
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  const isAdmin = Boolean(isAuthAdmin || user?.email === ADMIN_EMAIL || user?.role === 'admin');
+  const isPro = Boolean(isAuthPro || user?.isPro || isAdmin || user?.role === 'pro');
+
+  if (loading) {
+    return <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">Loading...</div>;
+  }
+
+  if (currentRoute === 'home') {
+    return (
+      <>
+        <CustomCursor />
+        <LandingPage
+          currentUser={user}
+          onGoToApp={() => setCurrentRoute('app')}
+          onGetStarted={() => {
+            if (user) setCurrentRoute('app');
+            else setIsAuthModalOpen(true);
+          }}
+          onSignIn={() => {
+            if (user) setCurrentRoute('app');
+            else setIsAuthModalOpen(true);
+          }}
+          onExploreTemplates={() => {
+            if (user) setCurrentRoute('app');
+            else setIsAuthModalOpen(true);
+          }}
+        />
+        <AuthModal user={user as any} isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      </>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <CustomCursor />
+        <AuthModal user={null} isOpen={true} />
+      </>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-jakarta">
+    <div className="min-h-screen bg-[#080D19] text-[#F8FAFF] flex flex-col font-jakarta">
+      <CustomCursor />
       {/* Top Navbar */}
       <Navbar
         currentInvoice={currentInvoice}
         savedInvoices={savedInvoices}
-        currentUser={currentUser}
+        currentUser={user as any} // Keeping as any for now to avoid large refactor
+        quota={{ used: 0, limit: 100 } as any}
         onSelectPreset={handleSelectPreset}
         onOpenTemplates={() => setIsTemplatesModalOpen(true)}
         onNewInvoice={handleNewInvoice}
-        onLoadSavedInvoice={handleLoadSavedInvoice}
+        onLoadSavedInvoice={() => {}}
         onOpenGuide={() => setIsGuideOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onOpenHistory={() => setIsHistoryModalOpen(true)}
         onOpenClients={() => setIsClientBookOpen(true)}
         onOpenAnalytics={() => setIsAnalyticsOpen(true)}
+        onOpenAdminDashboard={() => setIsAdminModalOpen(true)}
+        onOpenProLimit={(feature) => {
+          setProLimitReason('pro_feature');
+          setProFeatureName(feature || 'Pro Membership');
+          setIsProLimitModalOpen(true);
+        }}
         activeView={activeView}
         onToggleView={setActiveView}
+        onUpdateCurrency={(code) =>
+          handleUpdateInvoice({
+            ...currentInvoice,
+            currency: code,
+            updatedAt: new Date().toISOString(),
+          })
+        }
+        onDuplicateInvoice={() => handleDuplicateInvoice(currentInvoice)}
+        onOpenProComparison={() => setIsProComparisonOpen(true)}
+        onGoHome={() => setCurrentRoute('home')}
+        onOpenProProfile={() => setIsProProfileOpen(true)}
       />
 
-      {/* Main Workspace: Side 1 (Add Details) and Side 2 (Live Preview) */}
+      {isAdmin && (
+        <div className="no-print bg-gradient-to-r from-amber-950/80 via-neutral-900 to-indigo-950/80 border-b border-amber-500/30 px-4 py-1.5 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <Crown className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-amber-200 font-medium">
+              Super Admin Mode: Logged in as <strong className="font-mono text-white">{user.email}</strong>
+            </span>
+          </div>
+          <button
+            onClick={() => setIsAdminModalOpen(true)}
+            className="px-2.5 py-0.5 rounded-md bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold text-[11px] transition-colors shrink-0"
+          >
+            Open Admin Dashboard
+          </button>
+        </div>
+      )}
+
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-        {/* SIDE 1: Add Details */}
         <div
-          className={`flex-col h-[calc(100vh-6rem)] border-r border-neutral-800 transition-all ${
+          className={`no-print editor-side-panel flex-col h-[calc(100vh-4rem)] border-r border-neutral-800 transition-all ${
             activeView === 'preview'
               ? 'hidden'
               : activeView === 'editor'
               ? 'w-full flex'
+              : mobileTab === 'preview'
+              ? 'hidden md:flex md:w-[50%] lg:w-[46%] xl:w-[43%] 2xl:w-[520px] shrink-0'
               : 'w-full md:w-[50%] lg:w-[46%] xl:w-[43%] 2xl:w-[520px] flex shrink-0'
           }`}
         >
-          {/* Side 1 Header Banner */}
-          <div className="no-print h-9 bg-neutral-950 px-4 border-b border-neutral-800 flex items-center justify-between shrink-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-              Side 1 · Add Details
-            </span>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsClientBookOpen(true)}
-                className="text-[10px] text-emerald-400 hover:underline flex items-center gap-1"
-              >
-                + Client Book
-              </button>
-              <span className="text-[10px] text-neutral-400">
-                Form &amp; Line Items
-              </span>
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-hidden flex flex-col pb-14 md:pb-0">
             <EditorPanel
               invoice={currentInvoice}
               onChange={handleUpdateInvoice}
               onOpenTemplates={() => setIsTemplatesModalOpen(true)}
+              onOpenClients={() => setIsClientBookOpen(true)}
+              onQuickPdf={() => exportToPdf('invoice-render-sheet', currentInvoice.invoiceNumber)}
+              onDuplicate={() => handleDuplicateInvoice(currentInvoice)}
+              onPrint={() => printInvoice()}
+              onOpenProProfile={() => setIsProProfileOpen(true)}
+              currentUser={user}
             />
           </div>
         </div>
 
-        {/* SIDE 2: Live Preview */}
         <div
-          className={`flex-1 flex-col h-[calc(100vh-6rem)] overflow-hidden transition-all ${
-            activeView === 'editor' ? 'hidden' : 'flex'
+          className={`flex-1 flex-col h-[calc(100vh-4rem)] overflow-hidden transition-all ${
+            activeView === 'editor'
+              ? 'hidden'
+              : activeView === 'split' && mobileTab === 'editor'
+              ? 'hidden md:flex'
+              : 'flex'
           }`}
         >
-          {/* Side 2 Header Banner */}
-          <div className="no-print h-9 bg-neutral-950 px-4 border-b border-neutral-800 flex items-center justify-between shrink-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              Side 2 · Live Preview
-            </span>
-            <span className="text-[10px] text-neutral-400 font-mono">
-              Auto-updating · Invoice #{currentInvoice.invoiceNumber}
-            </span>
-          </div>
-
-          <div className="flex-1 overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-hidden flex flex-col pb-14 md:pb-0">
             <CanvasPreview
               invoice={currentInvoice}
               onUpdateInvoice={handleUpdateInvoice}
               onOpenTemplates={() => setIsTemplatesModalOpen(true)}
+              isPro={isPro}
             />
           </div>
         </div>
       </main>
 
-      {/* Global Application Bottom Footer Bar with Watermark */}
-      <footer className="no-print h-8 bg-neutral-950 border-t border-neutral-850 px-4 flex items-center justify-between text-[11px] text-neutral-400 z-30 select-none shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span className="font-semibold text-neutral-300">
-            InvoiceCraft Studio
-          </span>
-          <span className="hidden sm:inline text-neutral-600">|</span>
-          <span className="hidden sm:inline text-neutral-400 flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-indigo-400 inline" />
-            Security notice &amp; login logs dispatched to <strong className="text-indigo-300 font-mono">pdushangana@gmail.com</strong>
-          </span>
-        </div>
+      {/* Mobile Sticky Quick Switcher Dock */}
+      <div className="md:hidden no-print fixed bottom-3 left-1/2 -translate-x-1/2 z-50 bg-neutral-900/95 backdrop-blur-xl border border-neutral-700/80 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.8)] p-1.5 flex items-center gap-1.5">
+        <button
+          onClick={() => setMobileTab('editor')}
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+            mobileTab === 'editor'
+              ? 'bg-[#526DFF] text-white shadow-md shadow-[#526DFF]/30'
+              : 'text-neutral-400 hover:text-white'
+          }`}
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          <span>Edit Form</span>
+        </button>
+        <button
+          onClick={() => setMobileTab('preview')}
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+            mobileTab === 'preview'
+              ? 'bg-[#526DFF] text-white shadow-md shadow-[#526DFF]/30'
+              : 'text-neutral-400 hover:text-white'
+          }`}
+        >
+          <Eye className="w-3.5 h-3.5" />
+          <span>Live Canvas</span>
+        </button>
+        <button
+          onClick={() => setIsTemplatesModalOpen(true)}
+          className="px-3 py-2 rounded-xl text-xs font-bold text-amber-400 hover:bg-neutral-800 flex items-center gap-1 transition-all cursor-pointer border border-amber-500/20"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span>Templates</span>
+        </button>
+      </div>
 
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-neutral-200 tracking-wide">
-            Made By Pasindu Dushangana
-          </span>
-        </div>
-      </footer>
-
-      {/* Modals */}
       <TemplateSelectorModal
         isOpen={isTemplatesModalOpen}
         onClose={() => setIsTemplatesModalOpen(false)}
         selectedTemplateId={currentInvoice.templateId}
         onSelectTemplate={handleSelectTemplate}
+        currentUser={user as any}
+        currentInvoice={currentInvoice}
+        onOpenProModal={(name) => {
+          setProLimitReason('pro_template');
+          setProFeatureName(name);
+          setIsProLimitModalOpen(true);
+        }}
       />
 
-      <FeaturesModal
-        isOpen={isGuideOpen}
-        onClose={() => setIsGuideOpen(false)}
-      />
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onUserChange={handleUserChange}
-        invoicesCount={savedInvoices.length}
-      />
-
+      <FeaturesModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
       <UserHistoryModal
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
-        currentUser={currentUser}
+        currentUser={user as any}
         savedInvoices={savedInvoices}
         currentInvoiceId={currentInvoice.id}
         onSelectInvoice={setCurrentInvoice}
         onDuplicateInvoice={handleDuplicateInvoice}
-        onDeleteInvoice={handleDeleteInvoice}
+        onDeleteInvoice={() => {}}
         onNewInvoice={handleNewInvoice}
       />
-
-      <ClientBookModal
-        isOpen={isClientBookOpen}
-        onClose={() => setIsClientBookOpen(false)}
-        onApplyClient={handleApplyClient}
-      />
-
+      <ClientBookModal isOpen={isClientBookOpen} onClose={() => setIsClientBookOpen(false)} onApplyClient={handleApplyClient} />
       <AnalyticsModal
         isOpen={isAnalyticsOpen}
         onClose={() => setIsAnalyticsOpen(false)}
         savedInvoices={savedInvoices}
+        onNewInvoice={handleNewInvoice}
+        onSelectInvoice={setCurrentInvoice}
+      />
+      <AdminDashboardModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} currentUser={user as any} onSwitchUser={() => {}} />
+      <ProLimitModal
+        isOpen={isProLimitModalOpen}
+        onClose={() => setIsProLimitModalOpen(false)}
+        currentUser={user as any}
+        quota={{ used: 0, limit: 100 } as any}
+        reason={proLimitReason}
+        featureName={proFeatureName}
+        onSwitchToAdmin={() => {}}
+        onOpenAdminDashboard={() => {
+          setIsProLimitModalOpen(false);
+          setIsAdminModalOpen(true);
+        }}
+      />
+      <AuthModal user={user as any} isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <ProComparisonModal isOpen={isProComparisonOpen} onClose={() => setIsProComparisonOpen(false)} currentUser={user as any} />
+      <ProProfileModal
+        isOpen={isProProfileOpen}
+        onClose={() => setIsProProfileOpen(false)}
+        currentUser={user}
+        currentInvoice={currentInvoice}
+        onApplyToInvoice={handleApplyProProfileToInvoice}
+        onOpenProComparison={() => {
+          setIsProProfileOpen(false);
+          setIsProComparisonOpen(true);
+        }}
       />
     </div>
   );

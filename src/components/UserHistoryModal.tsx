@@ -268,7 +268,7 @@ export const UserHistoryModal: React.FC<UserHistoryModalProps> = ({
             Automatic history auto-saving enabled
           </span>
           <span className="font-semibold text-neutral-300">
-            Made By Pasindu Dushangana
+            PD Invoice Studio
           </span>
         </div>
       </div>

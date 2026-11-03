@@ -1,0 +1,30 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account profile and subscription tier",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "name": { "type": "string" },
+        "companyName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "pro", "user"] },
+        "isPro": { "type": "boolean" },
+        "totalInvoicesCount": { "type": "number" },
+        "invoicesToday": { "type": "number" },
+        "lastInvoiceDate": { "type": "string" },
+        "joinedDate": { "type": "string" },
+        "lastLoginTime": { "type": "string" },
+        "avatarUrl": { "type": "string" }
+      },
+      "required": ["email", "isPro"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents stored by email or uid"
+    }
+  }
+}

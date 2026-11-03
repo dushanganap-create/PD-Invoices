@@ -1,6 +1,7 @@
 import { CurrencyCode, CurrencyConfig } from '../types/invoice';
 
 export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
+  LKR: { code: 'LKR', symbol: 'Rs.', name: 'Sri Lankan Rupee (LKR)', decimals: 2 },
   USD: { code: 'USD', symbol: '$', name: 'US Dollar', decimals: 2 },
   EUR: { code: 'EUR', symbol: '€', name: 'Euro', decimals: 2 },
   GBP: { code: 'GBP', symbol: '£', name: 'British Pound', decimals: 2 },

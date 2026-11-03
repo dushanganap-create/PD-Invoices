@@ -1,4 +1,5 @@
 export type CurrencyCode =
+  | 'LKR'
   | 'USD'
   | 'EUR'
   | 'GBP'
@@ -137,6 +138,7 @@ export interface TemplateDefinition {
   description: string;
   tagline: string;
   badge?: string;
+  isPro?: boolean;
   accentHex: string;
   darkHex: string;
   fontPreview: string;

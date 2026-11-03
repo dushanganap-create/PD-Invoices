@@ -21,6 +21,23 @@ import {
   MonochromeEditorial,
   ArtNouveauBotanical,
   ZenithGlassmorphism,
+  QuantumFintech,
+  VelvetObsidian,
+  SolarisGlow,
+  HolographicMatrix,
+  NordicFjord,
+  AlpineMinimal,
+  VelvetRosemary,
+  ObsidianSapphire,
+  PrismGradient,
+  AeroGlass,
+  ChronoChronicle,
+  TitaniumExec,
+  CelestialGold,
+  VermilionTokyo,
+  HorizonSunset,
+  QuantumAi,
+  InfiniteLuxe,
 } from './CreativeExtraTemplates';
 
 interface TemplateProps {
@@ -2310,6 +2327,40 @@ export const TemplateRenderer: React.FC<{ invoice: Invoice }> = ({ invoice }) =>
       return <ArtNouveauBotanical invoice={invoice} calc={calc} />;
     case 'zenith-glassmorphism':
       return <ZenithGlassmorphism invoice={invoice} calc={calc} />;
+    case 'quantum-fintech':
+      return <QuantumFintech invoice={invoice} calc={calc} />;
+    case 'velvet-obsidian':
+      return <VelvetObsidian invoice={invoice} calc={calc} />;
+    case 'solaris-glow':
+      return <SolarisGlow invoice={invoice} calc={calc} />;
+    case 'holographic-matrix':
+      return <HolographicMatrix invoice={invoice} calc={calc} />;
+    case 'nordic-fjord':
+      return <NordicFjord invoice={invoice} calc={calc} />;
+    case 'alpine-minimal':
+      return <AlpineMinimal invoice={invoice} calc={calc} />;
+    case 'velvet-rosemary':
+      return <VelvetRosemary invoice={invoice} calc={calc} />;
+    case 'obsidian-sapphire':
+      return <ObsidianSapphire invoice={invoice} calc={calc} />;
+    case 'prism-gradient':
+      return <PrismGradient invoice={invoice} calc={calc} />;
+    case 'aero-glass':
+      return <AeroGlass invoice={invoice} calc={calc} />;
+    case 'chrono-chronicle':
+      return <ChronoChronicle invoice={invoice} calc={calc} />;
+    case 'titanium-exec':
+      return <TitaniumExec invoice={invoice} calc={calc} />;
+    case 'celestial-gold':
+      return <CelestialGold invoice={invoice} calc={calc} />;
+    case 'vermilion-tokyo':
+      return <VermilionTokyo invoice={invoice} calc={calc} />;
+    case 'horizon-sunset':
+      return <HorizonSunset invoice={invoice} calc={calc} />;
+    case 'quantum-ai':
+      return <QuantumAi invoice={invoice} calc={calc} />;
+    case 'infinite-luxe':
+      return <InfiniteLuxe invoice={invoice} calc={calc} />;
     default:
       return <ModernMinimal invoice={invoice} calc={calc} />;
   }

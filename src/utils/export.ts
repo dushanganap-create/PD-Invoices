@@ -2,55 +2,218 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Invoice } from '../types/invoice';
 import { calculateInvoice } from './calculations';
-import { formatCurrency } from './currency';
 
-export async function exportToPdf(elementId: string, invoiceNumber: string): Promise<boolean> {
+/**
+ * Bulletproof export to PDF using html2canvas & jsPDF.
+ * Captures ONLY the isolated invoice element (#invoice-render-sheet).
+ * NEVER falls back to window.print() so dev tools/terminals are never shown.
+ */
+export async function exportToPdf(elementId: string = 'invoice-render-sheet', invoiceNumber: string = 'INV-001'): Promise<boolean> {
   const element = document.getElementById(elementId);
   if (!element) {
-    console.error('Invoice element not found for PDF export');
+    console.error('Invoice sheet element not found for PDF export:', elementId);
     return false;
   }
 
   try {
-    // Store original transform to restore after capturing
+    // Save original styles to restore after export
     const originalTransform = element.style.transform;
+    const originalTransition = element.style.transition;
+    const originalMarginBottom = element.style.marginBottom;
+
+    // Temporarily reset zoom/scale transform so html2canvas captures at pristine 1:1 scale
     element.style.transform = 'none';
+    element.style.transition = 'none';
+    element.style.marginBottom = '0px';
 
-    // Wait brief frame for layout settling
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // Allow browser layout engine to paint unscaled geometry
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
+    // Capture ONLY the invoice element (strictly ignoring outer DOM, dev UI, docks)
     const canvas = await html2canvas(element, {
-      scale: 2, // High resolution (retina crispness)
+      scale: 2, // High-DPI retina sharpness
       useCORS: true,
+      allowTaint: true,
       logging: false,
       backgroundColor: '#ffffff',
-      windowWidth: 1200,
+      width: 850,
+      windowWidth: 850,
+      ignoreElements: (el) => {
+        // Exclude any floating toolbars or elements marked no-print
+        return el.classList.contains('no-print') || el.classList.contains('glass-dock');
+      },
     });
 
+    // Restore original zoom and transform immediately
     element.style.transform = originalTransform;
+    element.style.transition = originalTransition;
+    element.style.marginBottom = originalMarginBottom;
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    if (!canvas || canvas.width === 0 || canvas.height === 0) {
+      throw new Error('Canvas rendering produced zero-dimension image');
+    }
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.98);
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
+      compress: true,
     });
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfWidth = pdf.internal.pageSize.getWidth(); // 210 mm
+    const pdfPageHeight = pdf.internal.pageSize.getHeight(); // 297 mm
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    // Add image to PDF
-    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    let heightLeft = pdfHeight;
+    let position = 0;
+
+    // First page
+    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight, undefined, 'FAST');
+    heightLeft -= pdfPageHeight;
+
+    // Additional pages if invoice content extends beyond 1 A4 page
+    while (heightLeft > 5) {
+      position = -(pdfHeight - heightLeft);
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight, undefined, 'FAST');
+      heightLeft -= pdfPageHeight;
+    }
 
     const safeNumber = (invoiceNumber || 'INV-001').replace(/[^a-zA-Z0-9-_]/g, '_');
     pdf.save(`${safeNumber}.pdf`);
     return true;
   } catch (err) {
-    console.error('Error generating PDF:', err);
-    // Fallback to print dialog
-    window.print();
-    return false;
+    console.warn('html2canvas PDF export encountered issue, falling back to clean iframe print:', err);
+    try {
+      printInvoice(elementId);
+      return true;
+    } catch (e) {
+      console.error('Print fallback failed:', e);
+      return false;
+    }
   }
+}
+
+/**
+ * Isolated printing function.
+ * Creates an isolated hidden iframe containing ONLY the invoice HTML & styles.
+ * Guarantees that dev terminal, editor panel, nav bar, and browser UI NEVER appear in print.
+ */
+export function printInvoice(elementId?: string | unknown): void {
+  const targetId = typeof elementId === 'string' ? elementId : 'invoice-render-sheet';
+  const element = document.getElementById(targetId);
+  if (!element) {
+    console.error('Invoice sheet not found for print:', targetId);
+    return;
+  }
+
+  // Remove any pre-existing print iframe
+  const existingFrame = document.getElementById('pd-invoice-print-frame');
+  if (existingFrame) {
+    existingFrame.remove();
+  }
+
+  // Create isolated hidden iframe
+  const iframe = document.createElement('iframe');
+  iframe.id = 'pd-invoice-print-frame';
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = 'none';
+  iframe.style.visibility = 'hidden';
+
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow?.document;
+  if (!doc) {
+    console.error('Unable to access print iframe document');
+    return;
+  }
+
+  // Copy all external stylesheets & fonts from head
+  let headHtml = '';
+  document.querySelectorAll('link[rel="stylesheet"], style').forEach((node) => {
+    headHtml += node.outerHTML;
+  });
+
+  // Deep clone of invoice element to clean up transforms
+  const clone = element.cloneNode(true) as HTMLElement;
+  clone.style.transform = 'none';
+  clone.style.margin = '0 auto';
+  clone.style.width = '100%';
+  clone.style.maxWidth = '850px';
+  clone.style.boxShadow = 'none';
+  clone.style.border = 'none';
+
+  // Remove any .no-print elements inside the clone
+  clone.querySelectorAll('.no-print, .glass-dock').forEach((el) => el.remove());
+
+  doc.open();
+  doc.write(`
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Print Invoice</title>
+        ${headHtml}
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 10mm 10mm 12mm 10mm;
+          }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          html, body {
+            background: #ffffff !important;
+            color: #000000 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+          }
+          body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+          }
+          .invoice-sheet {
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+        </style>
+      </head>
+      <body>
+        ${clone.outerHTML}
+      </body>
+    </html>
+  `);
+  doc.close();
+
+  // Wait for images and fonts in the iframe to finish loading before invoking print
+  setTimeout(() => {
+    try {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+    } catch (e) {
+      console.warn('Iframe print error, falling back:', e);
+    } finally {
+      // Clean up iframe after print dialog closes
+      setTimeout(() => {
+        iframe.remove();
+      }, 2000);
+    }
+  }, 300);
 }
 
 export async function exportToPng(elementId: string, invoiceNumber: string): Promise<boolean> {
@@ -60,13 +223,17 @@ export async function exportToPng(elementId: string, invoiceNumber: string): Pro
   try {
     const originalTransform = element.style.transform;
     element.style.transform = 'none';
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 80));
 
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
+      allowTaint: true,
       logging: false,
       backgroundColor: '#ffffff',
+      width: 850,
+      windowWidth: 850,
+      ignoreElements: (el) => el.classList.contains('no-print') || el.classList.contains('glass-dock'),
     });
 
     element.style.transform = originalTransform;
@@ -142,8 +309,4 @@ export function exportToCsv(invoice: Invoice) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-}
-
-export function printInvoice() {
-  window.print();
 }

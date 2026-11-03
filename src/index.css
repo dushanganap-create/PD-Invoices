@@ -48,10 +48,104 @@
   }
 
   .glass-dock {
-    background: rgba(23, 23, 28, 0.82);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(20, 30, 48, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(88, 111, 255, 0.15);
+  }
+
+  /* PD Premium SaaS Color Utilities */
+  .bg-saas-primary { background-color: #080D19; }
+  .bg-saas-secondary { background-color: #101827; }
+  .bg-saas-card { background-color: #141E30; }
+  .bg-saas-elevated { background-color: #19253A; }
+  
+  .border-saas { border-color: rgba(255, 255, 255, 0.08); }
+  .border-saas-active { border-color: rgba(88, 111, 255, 0.4); }
+
+  .text-saas-primary { color: #F8FAFF; }
+  .text-saas-secondary { color: #A5B1C7; }
+  .text-saas-accent { color: #586FFF; }
+  .text-saas-accent-light { color: #8294FF; }
+
+  .btn-saas-primary {
+    background: #586FFF;
+    color: #F8FAFF;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-saas-primary:hover {
+    background: #475ce6;
+    box-shadow: 0 4px 20px -2px rgba(88, 111, 255, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .card-premium-glow {
+    position: relative;
+    transition: all 0.25s ease-out;
+  }
+  .card-premium-glow:hover {
+    border-color: rgba(88, 111, 255, 0.35);
+    box-shadow: 0 10px 30px -10px rgba(88, 111, 255, 0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Keyframe animations for SaaS landing page & interactive elements */
+  @keyframes floatSlow {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+
+  @keyframes floatSlowDelayed {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(7px);
+    }
+  }
+
+  @keyframes pulseGlowSlow {
+    0%, 100% {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.65;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes gradientFlow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-float-slow {
+    animation: floatSlow 5s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: floatSlowDelayed 6s ease-in-out infinite 1s;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlowSlow 6s ease-in-out infinite;
+  }
+
+  .animate-gradient-flow {
+    background-size: 200% auto;
+    animation: gradientFlow 5s ease infinite;
   }
 }
 
@@ -71,51 +165,62 @@
   background: rgba(160, 160, 160, 0.4);
 }
 
-/* Print Styles */
+/* Print Styles: Pure invoice isolation with zero dev tools or surrounding UI */
 @media print {
-  body {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 10mm 12mm 10mm;
+  }
+
+  html, body {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  .no-print,
-  nav,
-  header,
-  footer,
-  aside,
-  button,
-  .print-hide {
-    display: none !important;
+  /* Hide literally every element in the document tree */
+  body * {
+    visibility: hidden !important;
   }
 
-  .print-container {
-    padding: 0 !important;
-    margin: 0 auto !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
+  /* Make ONLY the invoice sheet and its internal components visible */
+  #invoice-render-sheet,
+  #invoice-render-sheet * {
+    visibility: visible !important;
+  }
+
+  /* Position invoice sheet at absolute top-left of page */
+  #invoice-render-sheet {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    transform: none !important;
-  }
-
-  .invoice-sheet {
+    margin: 0 auto !important;
+    padding: 0 !important;
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;
-    margin: 0 auto !important;
-    width: 100% !important;
-    min-height: auto !important;
-    page-break-after: avoid;
-    page-break-inside: avoid;
+    transform: none !important;
+    background: #ffffff !important;
   }
 
-  @page {
-    size: auto;
-    margin: 12mm 10mm 12mm 10mm;
+  /* Ensure dev terminals, navigation, docks, and editor panels are strictly removed */
+  .no-print,
+  .editor-side-panel,
+  header,
+  nav,
+  footer,
+  aside,
+  button,
+  .glass-dock,
+  .print-hide {
+    display: none !important;
   }
 }
